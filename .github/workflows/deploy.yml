@@ -13,6 +13,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+        with:
+          submodules: true
 
       - name: install dependencies
         run: |
@@ -45,8 +47,8 @@ jobs:
       - name: build lambda
         run: |
           vcpkg integrate install
-          mkdir build
-          cd build
+          cd argon2 && make
+          cd .. && mkdir build && cd build
           cmake .. \
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_PREFIX_PATH=~/out \
