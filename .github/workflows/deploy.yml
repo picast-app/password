@@ -1,0 +1,56 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: install dependencies
+        run: |
+          sudo apt-get install -y libcurl4-openssl-dev
+          export CC=gcc64
+          export CXX=g++64
+
+      - name: compile runtime
+        run: |
+          cd ~
+          git clone https://github.com/awslabs/aws-lambda-cpp.git
+          cd aws-lambda-cpp
+          mkdir build
+          cd build
+          cmake .. -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX=~/out
+          make && make install
+
+      - name: build lambda
+        run: |
+          mkdir build
+          cd build
+          cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=~/out
+          make
+          make aws-lambda-package-passwords
+
+      - name: configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-1
+
+      - name: deploy lambda
+        run: |
+          cd build
+          aws lambda create-function \
+          --function-name passwords \
+          --role ${{ secrets.IAM_ROLE_ARN }} \
+          --runtime provided \
+          --timeout 15 \
+          --memory-size 128 \
+          --handler passwords \
+          --zip-file fileb://passwords.zip
