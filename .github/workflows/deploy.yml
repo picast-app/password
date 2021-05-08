@@ -39,7 +39,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: /home/runner/.cache/vcpkg/archives
-          key: ${{ runner.os }}-aws-cache
+          key: ${{ runner.os }}-aws-cache-${{ secrets.CACHE_BUST }}
 
       - name: install aws sdk
         run: vcpkg install "aws-sdk-cpp[core, lambda]" --recurse

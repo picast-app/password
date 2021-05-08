@@ -1,8 +1,10 @@
 #include <aws/core/Aws.h>
 #include <aws/core/utils/json/JsonSerializer.h>
 #include <aws/lambda-runtime/runtime.h>
-#include "hash.h"
 #include <string>
+#include "config.h"
+#include "hash.h"
+#include "salt.h"
 
 using namespace aws::lambda_runtime;
 using namespace Aws::Utils::Json;
@@ -32,7 +34,9 @@ invocation_response handler(invocation_request const &request)
     } else {
       auto password = payload.GetString("password");
       try {
-        response = hash(password.c_str(), request.request_id.c_str());
+        uint8_t salt[SALTLEN];
+        if (!saltFromUUIDv4(request.request_id.c_str(), salt)) throw "couldn't generate salt";
+        response = "{\"hashed\":\"" + hash(password.c_str(), salt) + "\"}";
       } catch (const char* err) {
         response = err ?: "internal error";
         error = "EncodingFailed";
@@ -41,7 +45,7 @@ invocation_response handler(invocation_request const &request)
   }
   else error = "invalid method";
 
-  return error == "" 
+  return error == ""
     ? invocation_response::success(response, "application/json")
     : invocation_response::failure(response, error);
 }
