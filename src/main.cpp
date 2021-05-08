@@ -34,7 +34,7 @@ invocation_response handler(invocation_request const &request)
       try {
         response = hash(password.c_str(), request.request_id.c_str());
       } catch (const char* err) {
-        response = err;
+        response = err ?: "internal error";
         error = "EncodingFailed";
       }
     }
