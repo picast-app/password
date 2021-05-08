@@ -2,6 +2,7 @@
 #include <aws/core/utils/json/JsonSerializer.h>
 #include <aws/lambda-runtime/runtime.h>
 #include "hash.h"
+#include <string>
 
 using namespace aws::lambda_runtime;
 using namespace Aws::Utils::Json;
@@ -24,13 +25,14 @@ invocation_response handler(invocation_request const &request)
   std::string response = "";
   std::string error = "";
 
-  if (payload.GetString("method") == "hash") {
+  auto method = payload.GetString("method");
+  if (method == "hash") {
     if (!isString(payload, "password")) {
       error = "missing password";
     } else {
       auto password = payload.GetString("password");
       try {
-        response = hash(password.c_str());
+        response = hash(password.c_str(), request.request_id.c_str());
       } catch (const char* err) {
         response = err;
         error = "EncodingFailed";
