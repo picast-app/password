@@ -1,33 +1,28 @@
 #include "./hash.h"
 
-std::string hash(const char* password, const uint8_t* salt)
+std::string hash(const char* password, const uint8_t* salt, const Argon2Params params)
 {
-  uint32_t t_cost = 2;         // 2-pass computation
-  uint32_t m_cost = (1 << 16); // 64 mebibytes memory usage
-  uint32_t parallelism = 1;    // number of threads and lanes
-
   size_t pass_len = strlen(password);
-
   size_t enclen = argon2_encodedlen(
-    t_cost, 
-    m_cost, 
-    parallelism,
-    SALTLEN, 
-    HASHLEN, 
+    params.time_cost,
+    params.memory_cost,
+    params.parallelism,
+    SALTLEN,
+    HASHLEN,
     Argon2_id
   );
 
   char enc[enclen];
   auto status = argon2id_hash_encoded(
-    t_cost, 
-    m_cost, 
-    parallelism, 
-    password, 
-    pass_len, 
+    params.time_cost,
+    params.memory_cost,
+    params.parallelism,
+    password,
+    pass_len,
     salt,
-    SALTLEN, 
+    SALTLEN,
     HASHLEN,
-    enc, 
+    enc,
     enclen
   );
 
