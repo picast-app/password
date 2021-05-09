@@ -9,6 +9,6 @@ find_package(AWSSDK COMPONENTS core)
 include_directories(argon2/include)
 link_directories(argon2)
 
-add_executable(${PROJECT_NAME} src/main.cpp src/hash.cpp src/salt.cpp src/utils/json.cpp)
+add_executable(${PROJECT_NAME} src/main.cpp src/hash.cpp src/salt.cpp src/utils/json.cpp argon2/src/encoding.c)
 target_link_libraries(${PROJECT_NAME} PUBLIC argon2 AWS::aws-lambda-runtime ${AWSSDK_LINK_LIBRARIES})
 aws_lambda_package_target(${PROJECT_NAME})

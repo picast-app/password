@@ -9,6 +9,7 @@
 
 extern "C" {
   #include "../argon2/include/argon2.h"
+  #include "../argon2/src/encoding.h"
 }
 
 struct Argon2Params {
