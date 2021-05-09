@@ -2,8 +2,8 @@
 
 std::string hash(const char* password, const uint8_t* salt, const Argon2Params params)
 {
-  uint32_t pass_len = strlen(password);
   uint8_t outhash[HASHLEN];
+  uint32_t pass_len = strlen(password);
 
   argon2_context context = {
     .out          = outhash,
@@ -12,8 +12,8 @@ std::string hash(const char* password, const uint8_t* salt, const Argon2Params p
     .pwdlen       = pass_len,
     .salt         = (uint8_t*)salt,
     .saltlen      = SALTLEN,
-    .secret       = nullptr,
-    .secretlen    = 0,
+    .secret       = (uint8_t*)params.secret,
+    .secretlen    = (uint32_t)(params.secret ? strlen(params.secret) : 0),
     .ad           = nullptr,
     .adlen        = 0, 
     .t_cost       = params.time_cost,
@@ -38,7 +38,8 @@ std::string hash(const char* password, const uint8_t* salt, const Argon2Params p
     Argon2_id
   );
   char encoded[enc_len];
-  encode_string(&encoded[0], enc_len, &context, Argon2_id);
+  if (encode_string(&encoded[0], enc_len, &context, Argon2_id) != ARGON2_OK) 
+    throw "encoding failed";
 
   return std::string(encoded);
 }

@@ -3,6 +3,8 @@ set(CMAKE_CXX_STANDARD 11)
 
 project(passwords LANGUAGES CXX)
 
+add_definitions(-DPI_SECRET="${SECRET}")
+
 find_package(aws-lambda-runtime REQUIRED)
 find_package(AWSSDK COMPONENTS core)
 

@@ -9,6 +9,10 @@
 #include "salt.h"
 #include "utils/json.h"
 
+#ifndef PI_SECRET
+    #define PI_SECRET ""
+#endif
+
 using namespace aws::lambda_runtime;
 
 invocation_response handler(invocation_request const &request)
@@ -27,6 +31,9 @@ invocation_response handler(invocation_request const &request)
   if (method == "hash") {
     if (!isType(payload, "password", String)) {
       error = "missing password";
+    }
+    else if (strcmp(PI_SECRET, "") == 0) {
+      error = "missing secret";
     } else {
       auto password = payload.GetString("password");
       try {
@@ -34,6 +41,7 @@ invocation_response handler(invocation_request const &request)
         if (isType(payload, "time", Integer)) params.time_cost = payload.GetInteger("time");
         if (isType(payload, "memory", Integer)) params.memory_cost = payload.GetInteger("memory");
         if (isType(payload, "parallelism", Integer)) params.parallelism = payload.GetInteger("parallelism");
+        params.secret = PI_SECRET;
 
         uint8_t salt[SALTLEN];
         if (!saltFromUUIDv4(request.request_id.c_str(), salt)) throw "couldn't generate salt";
