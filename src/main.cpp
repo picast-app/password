@@ -30,12 +30,13 @@ invocation_response handler(invocation_request const &request)
     } else {
       auto password = payload.GetString("password");
       try {
-        uint8_t salt[SALTLEN];
-        if (!saltFromUUIDv4(request.request_id.c_str(), salt)) throw "couldn't generate salt";
         Argon2Params params;
         if (isType(payload, "time", Integer)) params.time_cost = payload.GetInteger("time");
         if (isType(payload, "memory", Integer)) params.memory_cost = payload.GetInteger("memory");
         if (isType(payload, "parallelism", Integer)) params.parallelism = payload.GetInteger("parallelism");
+
+        uint8_t salt[SALTLEN];
+        if (!saltFromUUIDv4(request.request_id.c_str(), salt)) throw "couldn't generate salt";
 
         auto t0 = std::chrono::high_resolution_clock::now();
         auto hashed = hash(password.c_str(), salt, params);
