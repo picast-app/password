@@ -4,6 +4,7 @@
 #include <string>
 #include <cstring>
 #include <stdint.h>
+#include <thread>
 #include "config.h"
 
 extern "C" {
@@ -11,9 +12,9 @@ extern "C" {
 }
 
 struct Argon2Params {
-  uint32_t time_cost = 2;
-  uint32_t memory_cost = (1 << 16);
-  uint32_t parallelism = 1;
+  uint32_t time_cost = 3;
+  uint32_t memory_cost = 25 * 1024;
+  uint32_t parallelism = std::thread::hardware_concurrency();
   
   std::string toJSON() {
     return "{\"time_cost\":" + std::to_string(time_cost) + 
