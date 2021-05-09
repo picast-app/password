@@ -5,11 +5,14 @@
 #include <cstring>
 #include <stdint.h>
 #include "config.h"
-#include "../argon2/include/argon2.h"
+
+extern "C" {
+  #include "../argon2/include/argon2.h"
+}
 
 struct Argon2Params {
   uint32_t time_cost = 2;
-  uint32_t memory_cost = 1 << 16;
+  uint32_t memory_cost = (1 << 16);
   uint32_t parallelism = 1;
   
   std::string toJSON() {

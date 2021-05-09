@@ -2,6 +2,8 @@
 #include <aws/core/utils/json/JsonSerializer.h>
 #include <aws/lambda-runtime/runtime.h>
 #include <string>
+#include <thread>
+#include <chrono>
 #include "config.h"
 #include "hash.h"
 #include "salt.h"
@@ -11,7 +13,7 @@ using namespace aws::lambda_runtime;
 
 invocation_response handler(invocation_request const &request)
 {
-  JsonValue json(request.payload);
+  JsonValue json(Aws::String(request.payload));
   if (!json.WasParseSuccessful()) return invocation_response::failure("Failed to parse input JSON", "InvalidJSON");
   auto payload = json.View();
 
@@ -34,19 +36,28 @@ invocation_response handler(invocation_request const &request)
         if (isType(payload, "time", Integer)) params.time_cost = payload.GetInteger("time");
         if (isType(payload, "memory", Integer)) params.memory_cost = payload.GetInteger("memory");
         if (isType(payload, "parallelism", Integer)) params.parallelism = payload.GetInteger("parallelism");
+
+        auto t0 = std::chrono::high_resolution_clock::now();
         auto hashed = hash(password.c_str(), salt, params);
-        response = "{\"hashed\":\"" + hashed + "\",\"params\":" + params.toJSON() + "}";
+        auto t1 = std::chrono::high_resolution_clock::now();
+        auto td = std::chrono::duration_cast<std::chrono::microseconds>(t1-t0);
+
+        response = "{\"hashed\":\"" + hashed + 
+                   "\",\"params\":" + params.toJSON() +
+                   ",\"durUS\":" + std::to_string(td.count()) + "}";
       } catch (const char* err) {
-        response = err ?: "internal error";
+        response = std::string(err ?: "internal error");
         error = "EncodingFailed";
       }
     }
   }
-  else if (method == "params") {
-    Argon2Params params;
-    response = "{\"params\":" + params.toJSON() + "\"";
+  else if (method == "info") {
+    auto threads = std::thread::hardware_concurrency();
+    response = "{\"threads\":" + std::to_string(threads) + "}";
   }
-  else error = "invalid method";
+  else {
+    error = "invalid method";
+  }
 
   return error == ""
     ? invocation_response::success(response, "application/json")
