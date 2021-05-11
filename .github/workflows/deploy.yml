@@ -42,7 +42,7 @@ jobs:
           key: ${{ runner.os }}-aws-cache-${{ secrets.CACHE_BUST }}
 
       - name: install aws sdk
-        run: vcpkg install "aws-sdk-cpp[lambda, dynamodb]" --recurse
+        run: vcpkg install "aws-sdk-cpp[lambda,dynamodb]" --recurse
 
       - name: configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1

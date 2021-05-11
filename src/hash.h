@@ -25,6 +25,6 @@ struct Argon2Params {
   }
 };
 
-std::string hash(const char* password, const uint8_t* salt, const Argon2Params params = {});
+std::string hash(std::string password, const uint8_t* salt, const Argon2Params params = {});
 
 #endif

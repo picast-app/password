@@ -1,18 +1,24 @@
 #include "db.h"
 
 DBClient::DBClient() {
-  Aws::SDKOptions options;
-  Aws::InitAPI(options);
+  std::cout << "init api";
+  Aws::InitAPI(sdk_opts);
 
   Aws::Client::ClientConfiguration clientConfig;
-  client = new Aws::DynamoDB::DynamoDBClient(clientConfig);
+  clientConfig.connectTimeoutMs = 1000;
+  clientConfig.requestTimeoutMs = 1000;
+  clientConfig.region = "eu-west-1";
+  auto credentialsProvider = Aws::MakeShared<Aws::Auth::EnvironmentAWSCredentialsProvider>("LAMBDA_ALLOC");
+  client = new Aws::DynamoDB::DynamoDBClient(credentialsProvider, clientConfig);
+  std::cout << "init done";
 };
 
 DBClient::~DBClient() {
+  Aws::ShutdownAPI(sdk_opts);
   delete client;
 };
 
-std::unique_ptr<Item> DBClient::getItem(const char* key) {
+std::unique_ptr<Item> DBClient::getItem(std::string key) {
   Aws::DynamoDB::Model::GetItemRequest request;
   request.SetTableName("echo_passwords");
   request.AddKey("id", Aws::DynamoDB::Model::AttributeValue(key));
@@ -29,7 +35,7 @@ std::unique_ptr<Item> DBClient::getItem(const char* key) {
   return item;
 };
 
-void DBClient::putItem(const char* id, const char* hash) {
+void DBClient::putItem(std::string id, std::string hash) {
   Aws::DynamoDB::Model::PutItemRequest request;
   request.SetTableName("echo_passwords");
 
