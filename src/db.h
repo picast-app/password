@@ -28,7 +28,6 @@ class DBClient {
 
   private:
     Aws::DynamoDB::DynamoDBClient* client = nullptr;
-    Aws::SDKOptions sdk_opts;
 };
 
 #endif

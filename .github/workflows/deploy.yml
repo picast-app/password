@@ -58,6 +58,7 @@ jobs:
           cd .. && mkdir build && cd build
           cmake .. \
             -DCMAKE_BUILD_TYPE=Release \
+            -DLOG_VERBOSITY=3 \
             -DCMAKE_PREFIX_PATH=~/out \
             -DCMAKE_TOOLCHAIN_FILE=/usr/local/share/vcpkg/scripts/buildsystems/vcpkg.cmake \
             -DSECRET:STRING="$(aws ssm get-parameter --name /password/secret --with-decryption --output text --query Parameter.Value)"
