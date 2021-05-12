@@ -3,7 +3,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 project(passwords LANGUAGES CXX)
 
-add_definitions(-DPI_SECRET="${SECRET}")
+add_definitions(-DPI_SECRET="${SECRET}" -DAUTH_TOKEN="${AUTH}")
 
 find_package(aws-lambda-runtime REQUIRED)
 find_package(AWSSDK COMPONENTS dynamodb)

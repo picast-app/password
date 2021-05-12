@@ -14,9 +14,9 @@ extern "C" {
 }
 
 struct Argon2Params {
-  uint32_t time_cost = 3;
-  uint32_t memory_cost = 25 * 1024;
-  uint32_t parallelism = 2;
+  uint32_t time_cost = TIME_COST;
+  uint32_t memory_cost = MEMORY_COST;
+  uint32_t parallelism = PARALLELISM;
   const char* secret = nullptr;
   
   std::string toJSON() {

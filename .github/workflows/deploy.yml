@@ -61,7 +61,8 @@ jobs:
             -DLOG_VERBOSITY=3 \
             -DCMAKE_PREFIX_PATH=~/out \
             -DCMAKE_TOOLCHAIN_FILE=/usr/local/share/vcpkg/scripts/buildsystems/vcpkg.cmake \
-            -DSECRET:STRING="$(aws ssm get-parameter --name /password/secret --with-decryption --output text --query Parameter.Value)"
+            -DSECRET:STRING="$(aws ssm get-parameter --name /password/secret --with-decryption --output text --query Parameter.Value)" \
+            -DAUTH:STRING="$(aws ssm get-parameter --name /password/auth --with-decryption --output text --query Parameter.Value)"
           make
           make aws-lambda-package-passwords
 

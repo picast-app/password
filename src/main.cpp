@@ -1,4 +1,5 @@
 #include <string>
+#include <assert.h>
 #include <aws/core/Aws.h>
 #include <aws/core/utils/json/JsonSerializer.h>
 #include <aws/lambda-runtime/runtime.h>
@@ -6,10 +7,6 @@
 #include "salt.h"
 #include "utils/json.h"
 #include "handler.h"
-
-#ifndef PI_SECRET
-  #define PI_SECRET ""
-#endif
 
 using namespace aws::lambda_runtime;
 
@@ -20,6 +17,8 @@ invocation_response handlerResponse(invocation_request const &request, invocatio
 
 invocation_response handler(invocation_request const &request)
 {
+  assert(strcmp(PI_SECRET, "") != 0 && strcmp(AUTH_TOKEN, "") != 0);
+  
   invocation_result result;
   JsonValue json(Aws::String(request.payload));
 
@@ -30,7 +29,8 @@ invocation_response handler(invocation_request const &request)
   if (!json.WasParseSuccessful()) return error("failed to parse json", "InvalidJSON");
   auto payload = json.View();
   if (!isType(payload, "method", String)) return error("missing method");
-  if (strcmp(PI_SECRET, "") == 0) return error("missing secret");
+  if (!isType(payload, "auth", String) || payload.GetString("auth") != AUTH_TOKEN)
+    return error(payload.KeyExists("auth") ? "incorrect auth token" : "missing auth token", "AuthenticationError");
   uint8_t salt[SALTLEN];
   if (!saltFromUUIDv4(request.request_id.c_str(), salt)) return error("couldn't generate salt");
   
