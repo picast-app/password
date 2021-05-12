@@ -4,6 +4,8 @@
 #include <string>
 #include <thread>
 #include <chrono>
+#include <map>
+#include <vector>
 #include <aws/core/Aws.h>
 #include <aws/lambda-runtime/runtime.h>
 #include <aws/core/utils/json/JsonSerializer.h>
@@ -15,6 +17,7 @@ using namespace aws::lambda_runtime;
 
 typedef enum {
   HASH,
+  CHECK,
   SET,
   INFO,
   UNKNOWN = -1
@@ -30,6 +33,6 @@ struct invocation_result {
   std::string response;
 };
 
-invocation_result handleRequest(std::string method, Aws::Utils::Json::JsonView& payload, const uint8_t* const salt, std::string secret);
+invocation_result handleRequest(std::string method_name, Aws::Utils::Json::JsonView& payload, const uint8_t* const salt, std::string secret);
 
 #endif

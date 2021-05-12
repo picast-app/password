@@ -1,7 +1,6 @@
 #include "db.h"
 
 DBClient::DBClient() {
-  std::cout << "db init" << std::endl;
   Aws::Client::ClientConfiguration clientConfig;
   clientConfig.connectTimeoutMs = 1000;
   clientConfig.requestTimeoutMs = 1000;
@@ -10,7 +9,6 @@ DBClient::DBClient() {
   clientConfig.region = "eu-west-1";
   auto credentialsProvider = Aws::MakeShared<Aws::Auth::EnvironmentAWSCredentialsProvider>("LAMBDA_ALLOC");
   client = new Aws::DynamoDB::DynamoDBClient(credentialsProvider, clientConfig);
-  std::cout << "db done" << std::endl;
 };
 
 DBClient::~DBClient() {
@@ -35,7 +33,6 @@ std::unique_ptr<Item> DBClient::getItem(std::string key) {
 };
 
 void DBClient::putItem(std::string id, std::string hash) {
-  std::cout << "put item" << std::endl;
   Aws::DynamoDB::Model::PutItemRequest request;
   request.SetTableName("echo_passwords");
 
@@ -43,7 +40,5 @@ void DBClient::putItem(std::string id, std::string hash) {
   request.AddItem("hash", Aws::DynamoDB::Model::AttributeValue(hash));
 
   auto result = client->PutItem(request);
-  std::cout << "put item done" << std::endl;
   if (!result.IsSuccess()) throw result.GetError().GetMessage();
-  std::cout << "put item success" << std::endl;
 }

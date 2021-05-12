@@ -5,6 +5,7 @@
 #include <cstring>
 #include <stdint.h>
 #include <thread>
+#include <memory>
 #include "config.h"
 
 extern "C" {
@@ -25,6 +26,12 @@ struct Argon2Params {
   }
 };
 
-std::string hash(std::string password, const uint8_t* salt, const Argon2Params params = {});
+namespace pass {
+
+std::string hash(std::string password, const uint8_t* salt, Argon2Params params = {});
+
+bool check(std::string password, std::string encoded, std::string secret);
+
+}
 
 #endif

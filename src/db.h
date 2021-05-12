@@ -3,7 +3,6 @@
 
 #include <string>
 #include <memory>
-#include <iostream>
 #include <aws/core/Aws.h>
 #include <aws/core/utils/Outcome.h> 
 #include <aws/dynamodb/DynamoDBClient.h>
