@@ -17,7 +17,7 @@ invocation_response handlerResponse(invocation_request const &request, invocatio
 
 invocation_response handler(invocation_request const &request)
 {
-  assert(strcmp(PI_SECRET, "") != 0 && strcmp(AUTH_TOKEN, "") != 0);
+  assert(strcmp(PI_SECRET, "") != 0 && strcmp(PI_ID_SECRET, "") != 0 && strcmp(AUTH_TOKEN, "") != 0);
   
   invocation_result result;
   JsonValue json(Aws::String(request.payload));

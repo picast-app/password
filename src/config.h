@@ -6,6 +6,10 @@
   #define PI_SECRET ""
 #endif
 
+#ifndef PI_ID_SECRET
+  #define PI_ID_SECRET ""
+#endif
+
 #ifndef AUTH_TOKEN
   #define AUTH_TOKEN ""
 #endif

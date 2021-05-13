@@ -46,11 +46,13 @@ invocation_result handleRequest(std::string method_name, Aws::Utils::Json::JsonV
                                        ",\"durUS\":" + std::to_string(hash_time.count()) + "}");
       }
     case SET:
-      DBClient().putItem(payload.GetString("user"), hash::pass::hash(payload.GetString("password"), salt, params));
+      DBClient().putItem(
+        hash::id::hash(payload.GetString("user"), PI_ID_SECRET), 
+        hash::pass::hash(payload.GetString("password"), salt, params));
       return invocation_result(true, "");
     case CHECK:
     {
-      auto item = DBClient().getItem(payload.GetString("user"));
+      auto item = DBClient().getItem(hash::id::hash(payload.GetString("user"), PI_ID_SECRET));
       if (!item) return invocation_result(false, "user doesn't exist");
       try {
         bool matches = hash::pass::check(payload.GetString("password"), item->hash, secret);
