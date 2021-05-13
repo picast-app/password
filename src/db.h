@@ -1,5 +1,4 @@
-#ifndef PI_DB_H_
-#define PI_DB_H_
+#pragma once
 
 #include <string>
 #include <memory>
@@ -28,5 +27,3 @@ class DBClient {
   private:
     Aws::DynamoDB::DynamoDBClient* client = nullptr;
 };
-
-#endif

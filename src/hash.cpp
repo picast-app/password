@@ -1,6 +1,6 @@
 #include "./hash.h"
 
-namespace pass {
+namespace hash::pass {
 
 std::unique_ptr<argon2_context> makeContext(std::string password, Argon2Params& params) {
   auto ctx = std::make_unique<argon2_context>();
@@ -81,4 +81,21 @@ bool check(std::string password, std::string encoded, std::string secret) {
   return false;
 }
 
+}
+
+
+namespace hash::id {
+
+std::string hash(std::string id, std::string secret) {
+  auto id_length = id.length();
+  uint8_t out[id_length];
+  
+  if (blake2b(&out, id_length, id.c_str(), id.length(), secret.c_str(), secret.length()) != 0)
+    throw std::runtime_error("hashing id failed");
+
+  std::stringstream hex;
+  for (int i = 0; i < id_length; i++) hex << std::hex << (int)out[i];
+  return hex.str();
+}
+  
 }

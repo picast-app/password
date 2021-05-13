@@ -1,5 +1,4 @@
-#ifndef PI_JSON_H_
-#define PI_JSON_H_
+#pragma once
 
 #include <aws/core/utils/json/JsonSerializer.h>
 
@@ -11,5 +10,3 @@ typedef enum  {
 } JsonType;
 
 bool isType(JsonView &json, const Aws::String& key, JsonType type);
-
-#endif

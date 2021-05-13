@@ -1,6 +1,7 @@
 build
 test
 /output*
-benchmark/*
-!benchmark/index.js
+benchmark
 .DS_Store
+src/test*
+.vscode

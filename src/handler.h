@@ -1,5 +1,4 @@
-#ifndef PI_HANDLER_H_
-#define PI_HANDLER_H_
+#pragma once
 
 #include <string>
 #include <thread>
@@ -34,5 +33,3 @@ struct invocation_result {
 };
 
 invocation_result handleRequest(std::string method_name, Aws::Utils::Json::JsonView& payload, const uint8_t* const salt, std::string secret);
-
-#endif
