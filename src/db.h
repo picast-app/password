@@ -8,6 +8,7 @@
 #include <aws/dynamodb/model/AttributeDefinition.h>
 #include <aws/dynamodb/model/GetItemRequest.h>
 #include <aws/dynamodb/model/PutItemRequest.h>
+#include <aws/dynamodb/model/DeleteItemRequest.h>
 #include <aws/core/platform/Environment.h>
 #include <aws/core/auth/AWSCredentialsProvider.h>
 
@@ -23,7 +24,9 @@ class DBClient {
 
   std::unique_ptr<Item> getItem(std::string key);
   void putItem(std::string id, std::string hash);
+  void deleteItem(std::string id);
 
   private:
     Aws::DynamoDB::DynamoDBClient* client = nullptr;
+    const std::string table_name = "echo_passwords";
 };

@@ -17,7 +17,7 @@ DBClient::~DBClient() {
 
 std::unique_ptr<Item> DBClient::getItem(std::string key) {
   Aws::DynamoDB::Model::GetItemRequest request;
-  request.SetTableName("echo_passwords");
+  request.SetTableName(table_name);
   request.AddKey("id", Aws::DynamoDB::Model::AttributeValue(key));
 
   auto result = client->GetItem(request);
@@ -34,11 +34,20 @@ std::unique_ptr<Item> DBClient::getItem(std::string key) {
 
 void DBClient::putItem(std::string id, std::string hash) {
   Aws::DynamoDB::Model::PutItemRequest request;
-  request.SetTableName("echo_passwords");
+  request.SetTableName(table_name);
 
   request.AddItem("id", Aws::DynamoDB::Model::AttributeValue(id));
   request.AddItem("hash", Aws::DynamoDB::Model::AttributeValue(hash));
 
   auto result = client->PutItem(request);
+  if (!result.IsSuccess()) throw result.GetError().GetMessage();
+}
+
+void DBClient::deleteItem(std::string id) {
+  Aws::DynamoDB::Model::DeleteItemRequest request;
+  request.SetTableName(table_name);
+  request.AddKey("id", Aws::DynamoDB::Model::AttributeValue(id));
+
+  auto result = client->DeleteItem(request);
   if (!result.IsSuccess()) throw result.GetError().GetMessage();
 }

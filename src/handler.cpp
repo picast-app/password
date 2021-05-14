@@ -5,13 +5,18 @@ method_code str2Method(std::string method) {
   if (method == "check") return CHECK;
   if (method == "set") return SET;
   if (method == "info") return INFO;
+  if (method == "exists") return EXISTS;
+  if (method == "delete") return DELETE;
   return UNKNOWN;
 }
 
 const std::map<method_code, std::vector<std::pair<std::string, JsonType>>> required = {
-  { HASH,  {{ "password", String }} },
-  { SET,   {{ "password", String }, { "user", String }} },
-  { CHECK, {{ "password", String }, { "user", String }} }
+  { HASH,   {{ "password", String }} },
+  { HASH,   {{ "password", String }} },
+  { SET,    {{ "password", String }, { "user", String }} },
+  { CHECK,  {{ "password", String }, { "user", String }} },
+  { EXISTS, {{ "user", String }} },
+  { DELETE, {{ "user", String }} }
 };
 
 invocation_result handleRequest(std::string method_name, Aws::Utils::Json::JsonView& payload, const uint8_t* const salt, std::string secret) {
@@ -61,6 +66,14 @@ invocation_result handleRequest(std::string method_name, Aws::Utils::Json::JsonV
         return invocation_result(false, argon2_error_message(code));
       }
     }
+    case EXISTS:
+    {
+      auto item = DBClient().getItem(hash::id::hash(payload.GetString("user"), PI_ID_SECRET));
+      return invocation_result(true, "{\"exists\":" + std::string(item ? "true" : "false") + "}");
+    }
+    case DELETE:
+      DBClient().deleteItem(hash::id::hash(payload.GetString("user"), PI_ID_SECRET));
+      return invocation_result(true, "");
     default:
       return invocation_result(false, "unknown method");
   }

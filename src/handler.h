@@ -18,6 +18,8 @@ typedef enum {
   HASH,
   CHECK,
   SET,
+  EXISTS,
+  DELETE,
   INFO,
   UNKNOWN = -1
 } method_code;
