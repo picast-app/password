@@ -13,10 +13,10 @@ method_code str2Method(std::string method) {
 const std::map<method_code, std::vector<std::pair<std::string, JsonType>>> required = {
   { HASH,   {{ "password", String }} },
   { HASH,   {{ "password", String }} },
-  { SET,    {{ "password", String }, { "user", String }, { "id", String }} },
-  { CHECK,  {{ "password", String }, { "user", String }} },
-  { EXISTS, {{ "user", String }} },
-  { DELETE, {{ "user", String }} }
+  { SET,    {{ "key", String }, { "password", String }, { "id", String }} },
+  { CHECK,  {{ "key", String }, { "password", String }} },
+  { EXISTS, {{ "key", String }} },
+  { DELETE, {{ "key", String }} }
 };
 
 invocation_result handleRequest(std::string method_name, Aws::Utils::Json::JsonView& payload, const uint8_t* const salt, std::string secret) {
@@ -28,7 +28,7 @@ invocation_result handleRequest(std::string method_name, Aws::Utils::Json::JsonV
         return invocation_result(false, "missing field " + key);
     }
   }
-  
+
   std::string hashed;
   std::chrono::microseconds hash_time;
   Argon2Params params;
@@ -54,27 +54,28 @@ invocation_result handleRequest(std::string method_name, Aws::Utils::Json::JsonV
       }
     case SET:
       DBClient().putItem(
-        hash::id::hash(payload.GetString("user"), PI_ID_SECRET), 
-        hash::pass::hash(payload.GetString("password"), salt, params));
+        hash::id::hash(payload.GetString("key"), PI_ID_SECRET), 
+        hash::pass::hash(payload.GetString("password"), salt, params),
+        payload.GetString("id"));
       return invocation_result(true, "");
     case CHECK:
     {
-      auto item = DBClient().getItem(hash::id::hash(payload.GetString("user"), PI_ID_SECRET));
-      if (!item) return invocation_result(false, "user doesn't exist");
+      auto item = DBClient().getItem(hash::id::hash(payload.GetString("key"), PI_ID_SECRET));
+      if (!item) return invocation_result(false, "key doesn't exist");
       try {
         bool matches = hash::pass::check(payload.GetString("password"), item->hash, secret);
-        return invocation_result(true, json::encode({{ "correct", matches }}));
+        return invocation_result(true, json::encode({{ "correct", matches }, { "id", item->id }}));
       } catch (Argon2_ErrorCodes code) {
         return invocation_result(false, argon2_error_message(code));
       }
     }
     case EXISTS:
     {
-      auto item = DBClient().getItem(hash::id::hash(payload.GetString("user"), PI_ID_SECRET));
+      auto item = DBClient().getItem(hash::id::hash(payload.GetString("key"), PI_ID_SECRET));
       return invocation_result(true, json::encode({{ "exists", item != nullptr }}));
     }
     case DELETE:
-      DBClient().deleteItem(hash::id::hash(payload.GetString("user"), PI_ID_SECRET));
+      DBClient().deleteItem(hash::id::hash(payload.GetString("key"), PI_ID_SECRET));
       return invocation_result(true, "");
     default:
       return invocation_result(false, "unknown method");

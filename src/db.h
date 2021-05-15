@@ -13,8 +13,9 @@
 #include <aws/core/auth/AWSCredentialsProvider.h>
 
 struct Item {
-  std::string id;
+  std::string key;
   std::string hash;
+  std::string id;
 };
 
 class DBClient {
@@ -23,8 +24,8 @@ class DBClient {
     ~DBClient();
 
   std::unique_ptr<Item> getItem(std::string key);
-  void putItem(std::string id, std::string hash);
-  void deleteItem(std::string id);
+  void putItem(std::string key, std::string hash, std::string id);
+  void deleteItem(std::string key);
 
   private:
     Aws::DynamoDB::DynamoDBClient* client = nullptr;
