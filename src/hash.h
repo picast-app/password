@@ -8,6 +8,7 @@
 #include <sstream>
 #include <exception>
 #include "config.h"
+#include "utils/json.h"
 
 extern "C" {
   #include "../argon2/include/argon2.h"
@@ -22,9 +23,11 @@ struct Argon2Params {
   const char* secret = nullptr;
   
   std::string toJSON() {
-    return "{\"time_cost\":" + std::to_string(time_cost) + 
-            ",\"memory_cost\":" + std::to_string(memory_cost) +
-            ",\"parallelism\":" + std::to_string(parallelism) + "}";
+    return json::encode({
+      { "time_cost", time_cost },
+      { "memory_cost", memory_cost },
+      { "parallelism", parallelism }
+    });
   }
 };
 

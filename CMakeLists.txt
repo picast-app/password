@@ -17,7 +17,6 @@ add_executable(${PROJECT_NAME}
   src/hash.cpp
   src/salt.cpp
   src/db.cpp
-  src/utils/json.cpp
   argon2/src/encoding.c
   argon2/src/blake2/blake2b.c
 )

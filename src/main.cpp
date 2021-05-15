@@ -28,8 +28,8 @@ invocation_response handler(invocation_request const &request)
 
   if (!json.WasParseSuccessful()) return error("failed to parse json", "InvalidJSON");
   auto payload = json.View();
-  if (!isType(payload, "method", String)) return error("missing method");
-  if (!isType(payload, "auth", String) || payload.GetString("auth") != AUTH_TOKEN)
+  if (!json::isType(payload, "method", String)) return error("missing method");
+  if (!json::isType(payload, "auth", String) || payload.GetString("auth") != AUTH_TOKEN)
     return error(payload.KeyExists("auth") ? "incorrect auth token" : "missing auth token", "AuthenticationError");
   uint8_t salt[SALTLEN];
   if (!saltFromUUIDv4(request.request_id.c_str(), salt)) return error("couldn't generate salt");
