@@ -21,14 +21,6 @@ struct Argon2Params {
   uint32_t memory_cost = MEMORY_COST;
   uint32_t parallelism = PARALLELISM;
   const char* secret = nullptr;
-  
-  std::string toJSON() {
-    return json::encode({
-      { "time_cost", time_cost },
-      { "memory_cost", memory_cost },
-      { "parallelism", parallelism }
-    });
-  }
 };
 
 namespace hash::pass {

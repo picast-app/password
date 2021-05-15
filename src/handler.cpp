@@ -48,7 +48,6 @@ invocation_result handleRequest(std::string method_name, Aws::Utils::Json::JsonV
         hash_time = std::chrono::duration_cast<std::chrono::microseconds>(t1 - t0);
         return invocation_result(true, json::encode({
           { "hashed", hashed },
-          { "params", params.toJSON() },
           { "durUS", hash_time.count() }
         }));
       }
@@ -64,7 +63,10 @@ invocation_result handleRequest(std::string method_name, Aws::Utils::Json::JsonV
       if (!item) return invocation_result(false, "key doesn't exist");
       try {
         bool matches = hash::pass::check(payload.GetString("password"), item->hash, secret);
-        return invocation_result(true, json::encode({{ "correct", matches }, { "id", item->id }}));
+        return invocation_result(true, matches 
+          ? json::encode({{ "correct", true }, { "id", item->id }}) 
+          : json::encode({{ "correct", false }})
+        );
       } catch (Argon2_ErrorCodes code) {
         return invocation_result(false, argon2_error_message(code));
       }

@@ -18,7 +18,7 @@ namespace json {
 
   struct Value {
     Value(const char* v): which(STRING), s(v) {};
-    Value(std::string v): which(STRING), s(v.c_str()) {};
+    Value(const std::string& v): which(STRING), s(v.c_str()) {};
     Value(bool v): which(BOOL), b(v) {};
     template<typename T, typename = typename std::enable_if<std::is_arithmetic<T>::value, T>::type>
     Value(T v): which(NUM), n((double)v) {}
