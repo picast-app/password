@@ -41,26 +41,31 @@ invocation_result handleRequest(std::string method_name, Aws::Utils::Json::JsonV
     case INFO:
       return invocation_result(true, json::encode({{ "threads", std::thread::hardware_concurrency() }}));
     case HASH:
-      {
-        auto t0 = std::chrono::high_resolution_clock::now();
-        hashed = hash::pass::hash(payload.GetString("password"), salt, params);
-        auto t1 = std::chrono::high_resolution_clock::now();
-        hash_time = std::chrono::duration_cast<std::chrono::microseconds>(t1 - t0);
-        return invocation_result(true, json::encode({
-          { "hashed", hashed },
-          { "durUS", hash_time.count() }
-        }));
-      }
+    {
+      auto t0 = std::chrono::high_resolution_clock::now();
+      hashed = hash::pass::hash(payload.GetString("password"), salt, params);
+      auto t1 = std::chrono::high_resolution_clock::now();
+      hash_time = std::chrono::duration_cast<std::chrono::microseconds>(t1 - t0);
+      return invocation_result(true, json::encode({
+        { "hashed", hashed },
+        { "durUS", hash_time.count() }
+      }));
+    }
     case SET:
-      DBClient().putItem(
+    {
+      bool overwrite = json::isType(payload, "overwrite", Boolean) && payload.GetBool("overwrite");
+      if (!DBClient().putItem(
         hash::id::hash(payload.GetString("key"), PI_ID_SECRET), 
         hash::pass::hash(payload.GetString("password"), salt, params),
-        payload.GetString("id"));
+        payload.GetString("id"),
+        !overwrite
+      )) return invocation_result(false, "key already exists", "ConditionError");
       return invocation_result(true, "");
+    }
     case CHECK:
     {
       auto item = DBClient().getItem(hash::id::hash(payload.GetString("key"), PI_ID_SECRET));
-      if (!item) return invocation_result(false, "key doesn't exist");
+      if (!item) return invocation_result(false, "key doesn't exist", "KeyError");
       try {
         bool matches = hash::pass::check(payload.GetString("password"), item->hash, secret);
         return invocation_result(true, matches 
@@ -68,7 +73,7 @@ invocation_result handleRequest(std::string method_name, Aws::Utils::Json::JsonV
           : json::encode({{ "correct", false }})
         );
       } catch (Argon2_ErrorCodes code) {
-        return invocation_result(false, argon2_error_message(code));
+        return invocation_result(false, argon2_error_message(code), "HashError");
       }
     }
     case EXISTS:

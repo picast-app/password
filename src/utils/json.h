@@ -9,7 +9,8 @@ using namespace Aws::Utils::Json;
 
 typedef enum  {
   String,
-  Integer
+  Integer,
+  Boolean
 } JsonType;
 
 namespace json {

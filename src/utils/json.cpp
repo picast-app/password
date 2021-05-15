@@ -5,6 +5,7 @@ bool json::isType(JsonView& json, const Aws::String& key, JsonType type) {
   switch (type) {
     case String: return json.GetObject(key).IsString();
     case Integer: return json.GetObject(key).IsIntegerType();
+    case Boolean: return json.GetObject(key).IsBool();
     default: return false;
   }
 }

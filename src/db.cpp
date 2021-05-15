@@ -33,7 +33,7 @@ std::unique_ptr<Item> DBClient::getItem(std::string key) {
   return item;
 };
 
-void DBClient::putItem(std::string key, std::string hash, std::string id) {
+bool DBClient::putItem(std::string key, std::string hash, std::string id, bool ifNotExists) {
   Aws::DynamoDB::Model::PutItemRequest request;
   request.SetTableName(table_name);
 
@@ -41,8 +41,20 @@ void DBClient::putItem(std::string key, std::string hash, std::string id) {
   request.AddItem("hash", Aws::DynamoDB::Model::AttributeValue(hash));
   request.AddItem("id", Aws::DynamoDB::Model::AttributeValue(id));
 
-  auto result = client->PutItem(request);
-  if (!result.IsSuccess()) throw result.GetError().GetMessage();
+  if (ifNotExists) {
+    request.WithExpressionAttributeNames({{ "#key", "key" }});
+    request.WithExpressionAttributeValues({{ ":key", Aws::DynamoDB::Model::AttributeValue(key) }});
+    request.WithConditionExpression("#key <> :key");
+  }
+
+  try {
+    auto result = client->PutItem(request);
+    if (!result.IsSuccess()) throw result.GetError().GetMessage();
+  } catch (const std::string& err) {
+    if (err == "The conditional request failed") return false;
+    throw err;
+  }
+  return true;
 }
 
 void DBClient::deleteItem(std::string key) {

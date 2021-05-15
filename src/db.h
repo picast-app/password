@@ -9,6 +9,7 @@
 #include <aws/dynamodb/model/GetItemRequest.h>
 #include <aws/dynamodb/model/PutItemRequest.h>
 #include <aws/dynamodb/model/DeleteItemRequest.h>
+#include <aws/dynamodb/model/Condition.h>
 #include <aws/core/platform/Environment.h>
 #include <aws/core/auth/AWSCredentialsProvider.h>
 
@@ -24,7 +25,7 @@ class DBClient {
     ~DBClient();
 
   std::unique_ptr<Item> getItem(std::string key);
-  void putItem(std::string key, std::string hash, std::string id);
+  bool putItem(std::string key, std::string hash, std::string id, bool ifNotExists = true);
   void deleteItem(std::string key);
 
   private:
