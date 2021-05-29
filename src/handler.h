@@ -11,6 +11,7 @@
 #include "hash.h"
 #include "utils/json.h"
 #include "db.h"
+#include "salt.h"
 
 using namespace aws::lambda_runtime;
 

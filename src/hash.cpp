@@ -23,8 +23,14 @@ std::unique_ptr<argon2_context> makeContext(std::string password, Argon2Params& 
   return ctx;
 }
 
+std::string truncate(const std::string& password) {
+  return password.substr(0, 15);
+}
+
 std::string hash(std::string password, const uint8_t* salt, Argon2Params params)
 {
+  password = truncate(password);
+  
   uint8_t outhash[HASHLEN];
   uint32_t pass_len = password.length();
 
@@ -53,6 +59,8 @@ std::string hash(std::string password, const uint8_t* salt, Argon2Params params)
 }
 
 bool check(std::string password, std::string encoded, std::string secret) {
+  password = truncate(password);
+  
   argon2_context ctx;
   uint32_t max_field_len = encoded.length();
 

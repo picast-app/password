@@ -48,14 +48,15 @@ invocation_result handleRequest(std::string method_name, Aws::Utils::Json::JsonV
       hash_time = std::chrono::duration_cast<std::chrono::microseconds>(t1 - t0);
       return invocation_result(true, json::encode({
         { "hashed", hashed },
-        { "durUS", hash_time.count() }
+        { "durUS", hash_time.count() },
+        { "salt", salt::toString(salt) }
       }));
     }
     case SET:
     {
       bool overwrite = json::isType(payload, "overwrite", Boolean) && payload.GetBool("overwrite");
       if (!DBClient().putItem(
-        hash::id::hash(payload.GetString("key"), PI_ID_SECRET), 
+        hash::id::hash(payload.GetString("key"), PI_ID_SECRET),
         hash::pass::hash(payload.GetString("password"), salt, params),
         payload.GetString("id"),
         !overwrite

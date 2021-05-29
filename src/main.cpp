@@ -32,7 +32,7 @@ invocation_response handler(invocation_request const &request)
   if (!json::isType(payload, "auth", String) || payload.GetString("auth") != AUTH_TOKEN)
     return error(payload.KeyExists("auth") ? "incorrect auth token" : "missing auth token", "AuthenticationError");
   uint8_t salt[SALTLEN];
-  if (!saltFromUUIDv4(request.request_id.c_str(), salt)) return error("couldn't generate salt");
+  if (!salt::fromUUIDv4(request.request_id.c_str(), salt)) return error("couldn't generate salt");
   
   Aws::SDKOptions sdk_opts;
   sdk_opts.loggingOptions.logLevel = Aws::Utils::Logging::LogLevel::Debug;
